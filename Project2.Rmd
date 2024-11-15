@@ -1,0 +1,291 @@
+---
+title: "Project 2"
+author: "Kaleb Luna"
+date: "2024-11-13"
+output: 
+  html_document: 
+    toc: true 
+    toc_float: true 
+---
+
+```{r setup, include=FALSE }
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## 
+
+```{r echo = FALSE, warning = FALSE, include = FALSE}
+library(readr)
+library(ggplot2)
+library(bslib)
+library(knitr)
+library(dplyr)
+library(tidyr)
+hdiData <- read.csv("Human Development Index Data - HDI.csv")
+```
+
+# The Human Development Index (HDI): How does it compare across the world?
+
+# Introduction
+
+```{r echo = FALSE}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Average_annual_HDI_growth_from_2010_to_2021_published_in_2022.png/700px-Average_annual_HDI_growth_from_2010_to_2021_published_in_2022.png")
+```
+
+*Image Cited: Wikipedia contributors. (2003, July 5). Human Development Index - Wikipedia. https://en.wikipedia.org/wiki/Human_Development_Index*
+
+The data set of interest contains measures related to the Human Development Index (HDI), a statistic established by the United Nations to assess a nation's overall level of human development based on three factors: health, knowledge and standard of living. These three primary factors are assessed by:
+
+-   Mean and Expected years of schooling
+
+-   Life Expectancy at Birth
+
+-   Gross National Income (GNI) per capita
+
+I have chose this dataset because it allows making real insights into key human development indicators, including HDI, life expectancy, education, and more-things that are quite relevant in trying to understand disparities across the world. More specifically, I was interested in examining how such factors as income and education interact in influencing certain development outcomes across countries. In this data set, I felt that I would be able to gain an opportunity to test these relationships and further understand the challenges and opportunities for improvement in global well-being.\
+
+# Data Preparation
+
+To obtain the dataset, I accessed the United Nations Human Development Reports Data Center, specifically at the HDI Information page at [https://hdr.undp.org/data-center/human-development](https://hdr.undp.org/data-center/human-development-index#/indicies/HDI){.uri} [index#/indicies/HDI](https://hdr.undp.org/data-center/human-development-index#/indicies/HDI){.uri}. I downloaded the data set in an Excel XLSX format, then converting it to a .csv format by importing the dataset into Google Sheets. From there, I was able to obtain the provided indicators of interest such as **HDI, mean and expected years of schooling, life expectancy, GNI per capita, and HDI rank** for each country.
+
+After importing the data set into R using the read.csv(), I performed the following steps to clean up the data set:
+
+-   I removed all unnecessary columns and rows, mainly elements that were used to separate the data in the initial format that would've interfered with the import of the data set into R. Furthermore, there were a few blank cells in the data set for countries that have provided no data in certain columns (e.g. North Korea); therefore, I replaced these blank cells with NAs.
+
+-   I ensured the each of the variables of interests were of the correct data types. For example, I ensured that HDI rank and years of schooling were set to numeric values, while country names were set as string/factors.
+
+Throughout the process, the challenges I came across mainly revolved around data points that were not available and incomplete data as indicated by the NA values, specifically in countries such as North Korea.
+
+```{r echo = FALSE, message = FALSE}
+hdisubset <- na.omit(hdiData) |>
+  select(Country, Human.Development.Index..HDI., Life.expectancy.at.birth, Mean.years.of.schooling, Expected.years.of.schooling, Gross.national.income..GNI..per.capita)
+
+
+# Create a table with variable name, type, and description
+variable_info <- data.frame(
+  Variable = c("Country", "Human.Develoopment.Index..HDI.", "Life.expectancy.at.birth", 
+               "Mean.years.of.schooling", "Expected.years.of.schooling", 
+               "Gross.national.income..GNI..per.capita" ),
+  Type = c("String", "Numeric", "Numeric", "Numeric", "Numeric", "Numeric"),
+  Description = c(
+    "Name of the country.",
+    "Human Development Index (HDI) score for the country, a composite measure of overall human development.",
+    "Average life expectancy at birth, indicating the health status of the population.",
+    "Average years of schooling received by people ages 25 and older, reflecting educational attainment.",
+    "Expected years of schooling for children of school-entry age, indicating potential educational outcomes.",
+    "Gross National Income per capita (in USD), showing the economic prosperity of the country."
+  )
+)
+
+kable(variable_info, caption = "Variable Descriptions for HDI Dataset", align = c('l', 'c', 'l'))
+
+```
+
+# Univariate Analysis
+
+## HDI Index
+
+```{r warning = FALSE}
+ggplot(hdisubset, aes(x = Human.Development.Index..HDI.)) + 
+  geom_histogram(bins = 20, fill = "azure4", color = "black") + 
+  labs(title = "Distribution of HDI Index", x = "HDI Index", y = "Frequency")
+
+```
+
+```{r include = FALSE}
+summary(hdisubset$Human.Development.Index..HDI.)
+sd(hdisubset$Human.Development.Index..HDI.)
+
+```
+
+The distribution of the HDI index is slightly skewed to the left, with a mean of 0.73 and a standard deviation of 0.15.
+
+# 
+
+## Life Expectancy
+
+```{r warning = FALSE}
+ggplot(hdisubset, aes(x = Life.expectancy.at.birth)) + 
+  geom_histogram(bins = 20, fill = "azure2", color = "black") + 
+  labs(title = "Distribution of Life Expectancy at Birth", x = "Life Expectancy (Years)", y = "Frequency")
+
+```
+
+```{r include = FALSE}
+summary(hdisubset$Life.expectancy.at.birth)
+sd(hdisubset$Life.expectancy.at.birth)
+
+```
+
+The distribution of the Life Expectancy at Birth is slightly skewed to the left, with a mean of 71.93 years and a standard deviation of 7.80 years.
+
+## Mean Years of Schooling
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(hdisubset, aes(x = Mean.years.of.schooling)) + 
+  geom_histogram(bins = 20, fill = "cornsilk4", color = "black") + 
+  labs(title = "Distribution of Mean Years of Schooling", x = "Mean Years of Schooling (Years)", y = "Frequency")
+```
+
+```{r include = FALSE}
+summary(hdisubset$Mean.years.of.schooling)
+sd(hdisubset$Mean.years.of.schooling)
+```
+
+The distribution of the Mean Years of Schooling is slightly skewed to the left, with a mean of 9.05 years and a standard deviation of 3.19 years.
+
+#### Comparing the Gap between Mean Years of Schooling vs. Expected Years of Schooling Across Countries
+
+```{r}
+
+
+hdi_long <- hdisubset %>%
+  pivot_longer(cols = c(Mean.years.of.schooling, Expected.years.of.schooling), 
+               names_to = "schooling_type", 
+               values_to = "years")
+
+hdisubset$schooling_gap <- hdisubset$Expected.years.of.schooling - hdisubset$Mean.years.of.schooling
+
+schooling_gap_table <- hdisubset[, c("Country", "schooling_gap")]
+
+kable(
+  schooling_gap_table,
+  col.names = c("Country", "Schooling Gap"),
+  caption = "Schooling Gap Across Countries",
+  format = "markdown"
+)
+
+```
+
+## Gross National Income per Capita
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+
+
+hdisubset$Gross.national.income..GNI..per.capita <- as.numeric(gsub(",", "", hdisubset$Gross.national.income..GNI..per.capita))
+ggplot(hdisubset, aes(x = Gross.national.income..GNI..per.capita)) + 
+  geom_histogram(bins = 20, fill = "azure1", color = "black") + 
+  labs(title = "Distribution of Gross National Income per capita", x = "Gross national income per capita ($)", y = "Frequency")
+
+hdisubset$income_category <- ifelse(hdisubset$Gross.national.income..GNI..per.capita > 20000, "High", "Low")
+
+
+```
+
+```{r include = FALSE}
+summary(hdisubset$Gross.national.income..GNI..per.capita)
+sd(hdisubset$Gross.national.income..GNI..per.capita)
+```
+
+The distribution of the Gross National Income per capita is skewed to the right, with a mean of \$21,161 and a standard deviation of \$22,543.09.
+
+#### Addressing the Distribution of Income Categories across Countries
+
+```{r}
+
+ggplot(hdisubset, aes(x = income_category, fill = income_category)) +
+  geom_bar() +
+  labs(
+    title = "Number of Countries by Income Category",
+    x = "Income Category",
+    y = "Number of Countries"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Set2", name = "Income Category")
+
+
+```
+
+# Bivariate Analysis
+
+## HDI by Country (Top 20)
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(hdisubset |> 
+         top_n(20, Human.Development.Index..HDI.), aes(x=reorder(Country, Human.Development.Index..HDI.), y = Human.Development.Index..HDI.)) + 
+  geom_bar(stat = "identity", fill = "lightblue") + 
+  coord_flip() +
+  labs(title = "HDI by Country", x = "Top 20 Countries", y = "HDI Index")
+ 
+```
+
+The bar plot depicts the HDI scores for the top 20 countries in the data set, highlighting how these countries compare in terms of this statistics. Overall, countries with higher HDI scores reflect better development.
+
+The mean HDI index is `r mean(hdisubset$Human.Development.Index..HDI., na.rm = TRUE)`. The country with the highest life expectancy is `r hdisubset$Country[which.max(hdisubset$Life.expectancy.at.birth)]` at `r max(hdisubset$Life.expectancy.at.birth, na.rm = TRUE)` years.
+
+## Mean Years of Schooling vs. Life Expectancy at Birth
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(hdisubset, aes( x = Mean.years.of.schooling, y = Life.expectancy.at.birth)) + 
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", color = "maroon") + 
+  labs(title = "Mean Years of Schooling vs. Life Expectancy", x = "Mean Years of Schooling (Years)", y = "Life Expectancy at Birth (Years)")
+cor(hdisubset$Mean.years.of.schooling, hdisubset$Life.expectancy.at.birth, use = "complete.obs")
+```
+
+With a correlation coefficient of 0.71, the scatter plot suggests a strong, positive relationship between the **mean years of schooling and life expectancy at birth**. This reveals that higher education levels tend to correlate with better health and prosperity.
+
+## Mean Years of Schooling vs. GNI per Capita
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(hdisubset, aes(x = Mean.years.of.schooling, y = Gross.national.income..GNI..per.capita)) + 
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", color = "maroon") + 
+  labs(title = "Mean Years of Schooling vs. GNI per Capita", x = "Mean Years of Schooling (Years)", y= "GNI per Capita ($)")
+cor(hdisubset$Mean.years.of.schooling, hdisubset$Gross.national.income..GNI..per.capita, use = "complete.obs")
+
+```
+
+With a correlation coefficient of 0.65, the graph depicting the relationship between **Mean Years of Schooling vs. GNI per capita** suggests a moderate to strong positive correlation between the two variables, meaning that countries with a higher educational opportunity tend to have a higher GNI per capita.
+
+## HDI vs. Life Expectancy at Birth
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(hdisubset, aes(x= Human.Development.Index..HDI., y = Life.expectancy.at.birth))+
+  geom_point(color = "black") + 
+  geom_smooth(method = "lm", color = "maroon") +
+  labs(title = "HDI vs. Life Expectancy at Birth", x = "HDI Index", y = "Life Expectancy at Birth")
+cor(hdisubset$Human.Development.Index..HDI., hdisubset$Life.expectancy.at.birth, use = "complete.obs")
+```
+
+With a correlation coefficient of 0.90, the graph depicting the relationship between **HDI vs. Life Expectancy at Birth** reveals a strong, positive correlation between the two variables, which suggest that countries with a higher HDI tend to have longer life expectancies.
+
+```{r}
+ggplot(hdisubset, aes(x = Life.expectancy.at.birth, y = Gross.national.income..GNI..per.capita, size = Mean.years.of.schooling)) +
+  geom_point(alpha = 0.7, color = "blue") +
+  scale_size_continuous(range = c(2, 10)) +
+  labs(title = "Life Expectancy vs. GNI Per Capita with Mean Years of Schooling as Bubble Size",
+       x = "Life Expectancy",
+       y = "GNI Per Capita",
+       size = "Mean Years of Schooling") +
+  theme_minimal()
+```
+
+The plot above shows how l**ife expectancy and GNI per capita** are related across the countries in the dataset, with the size depicting **the mean years of schooling**. With this, we can interpret that countries with a higher GNI tend have higher life expectancies. Furthermore, larger bubbles are generally associated higher GNI per capita and life expectancy.
+
+# Choice Elements
+
+In this analysis, I utilized several choice elements to enhance the exploration of the dataset of the Human Development Index and its components across multiple countries. I incorporated four or more in-line code chunks in the HDI Index by Country section in my bivariate analysis and when I addressed the NA values in my code, including the creation of two new variables, such as the schooling gap and income group. Additionally, I reshaped key variables to focus on the most relevant data points, specifically in the section that compares the mean years of schooling with the expected years schooling in the univariate analysis section focusing on "Mean years of schooling." I also conducted a multivariate analysis involving three variables, Life expectancy, GNI per capita, and Mean years of schooling, to explore the complex relationships between them and how each variable correlates. Furthermore, I reported and investigated the NA values for each variable of interest, ensuring a thorough examination of missing data and its potential impact.
+
+# Conclusion 
+
+#### Addressing the Absent Values: 
+
+```{r}
+na_counts <- sapply(hdisubset, function(x) sum(is.na(x)))
+```
+
+There are `r na_counts["hdi_index"]` missing values for HDI. These may occur due to lack of data reporting in less-developed countries or other factors such as political stability, etc.
+
+This project provided an analysis of human development indicators across countries, focusing on variables such as HDI, life expectancy, mean/expected years of schooling, and GNI per capita. Throughout the project, I came across key findings such as large differences in schooling gaps across some of the income categories and complex relationships between schooling and income and life expectancy that bring out the interlinkages among the elements of human development. Also, by reshaping the variables and creating new variables such as the schooling gap, we were able to understand the inequality in education across countries. The multivariate analysis showed a positive correlation between life expectancy and HDI, indicating that countries with higher HDI tend to have better health outcomes. Furthermore, the relationship between mean years of schooling and GNI per capita highlighted that wealthier countries often invest more in education, leading to higher levels of schooling. The schooling gap, which was calculated by subtracting mean years of schooling from expected years of schooling, had shown significant disparities, particularly in lower-income countries where access to education is more typically more limited
+
+Overall, the findings of this project did match what I expected as I came into this topic knowing prior knowledge about how development is influenced by such factors (education, health, economic prosperity).
+
+# References
+
+-   United Nations. (n.d.). *Human Development Index*. Human Development Reports. <https://hdr.undp.org/data-center/human-development-index#/indicies/HDI>
+
+-   Team, I. (2024, June 21). *What is the Human Development Index (HDI)?* Investopedia. <https://www.investopedia.com/terms/h/human-development-index-hdi.asp>
+
+-   United Nations. (2024, November 13). *DESA-EN \| United Nations*. <https://www.un.org/en/desa>
