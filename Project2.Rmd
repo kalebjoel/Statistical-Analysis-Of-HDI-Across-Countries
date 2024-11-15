@@ -282,6 +282,18 @@ This project provided an analysis of human development indicators across countri
 
 Overall, the findings of this project did match what I expected as I came into this topic knowing prior knowledge about how development is influenced by such factors (education, health, economic prosperity).
 
+# Reproducibility 
+
+<https://github.com/kalebjoel/Project-2>
+
+-   Clone the repository and install necessary R packages, including `dplyr`, `ggplot2`, `tidyr`, `readr`, and `knitr`.
+
+-   Download the dataset from the UNDP Human Development Index website or use the dataset file included in the repository (e.g., `Human Development Index Data -HDI.csv`).
+
+-   Load the dataset into R, clean it by handling missing values, creating new variables (e.g., schooling gap), and reshaping data for analysis.
+
+-   Execute the provided R Markdown file (`Project2.Rmd`) to run the analysis, generate visualizations, and produce the final knitted report.
+
 # References
 
 -   United Nations. (n.d.). *Human Development Index*. Human Development Reports. <https://hdr.undp.org/data-center/human-development-index#/indicies/HDI>
